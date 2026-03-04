@@ -84,6 +84,7 @@ int main(int argc, char *argv[]) {
     dibujarLaberinto(filas, columnas);
 
     int exito = resolverLaberinto_BFS(0, 1, filas, columnas); // Se inicia el proceso de resolución
+
     tiempoFin = clock();    // <-- Paramos el reloj apenas termina la resolución
 
     // Calcular la diferencia en segundos
@@ -98,7 +99,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    // 4. Mostrar resultado del cronómetro
+    // Mostrar resultado del cronómetro
     printf("\nTiempo de ejecucion: %f segundos\n", tiempoSegundos);
     return 0;
 }
@@ -167,35 +168,35 @@ void intercambiar(int *a, int *b) {
 }
 
 int resolverLaberinto_BFS(int inicioX, int inicioY, int filas, int columnas) {
-    // 1. LIMPIEZA INICIAL: Ponemos todo en 0 y los padres en -1
+    // LIMPIEZA INICIAL: Ponemos todo en 0 y los padres en -1
     for(int i=0; i < filas; i++) {
         for(int j=0; j < columnas; j++) {
-            visitado[i][j] = 0;
+            visitado[i][j] = 0; // ningun espacio visitado
             padres[i][j] = (Punto){-1, -1}; // -1 significa "no tengo padre aún"
         }
     }
 
-    // 2. EMPEZAR: Ponemos la entrada en la cola y la marcamos
-    inicioCola = 0;
-    finCola = 0;
-    cola[finCola++] = (Punto){inicioX, inicioY};
-    visitado[inicioX][inicioY] = 1;
+    // Ponemos la entrada en la cola y la marcamos
+    inicioCola = 0; // Cajero (indica a quién le toca ser procesado)
+    finCola = 0; // Final de la fila (indica donde se para el próximo que llega)
+    cola[finCola++] = (Punto){inicioX, inicioY}; //Enqueue (Poner en cola)
+    visitado[inicioX][inicioY] = 1; // Marcamos esta posición como ya visitado
 
-    // Direcciones de movimiento (esta vez de 1 en 1, no de 2 en 2)
-    int dX[] = {1, -1, 0, 0}; 
+    // Direcciones de movimiento (esta vez de 1 en 1)
+    int dX[] = {1, -1, 0, 0};
     int dY[] = {0, 0, 1, -1};
 
-    // 3. EL BUCLE PRINCIPAL: Mientras haya gente en la fila esperando...
+    // BUCLE PRINCIPAL: Mientras haya gente en la fila esperando...
     while (inicioCola < finCola) {
-        Punto actual = cola[inicioCola++]; // Sacamos al primero ("Atendemos")
+        Punto actual = cola[inicioCola++]; //Dequeue Sacamos al primero ("Atendemos")
 
-        // ¿Llegamos a la salida?
+        // En el caso de que se llegue a la salida
         if (laberinto[actual.x][actual.y] == SALIDA) {
             reconstruirCamino(actual.x, actual.y); // ¡Dibujamos el éxito!
             return 1;
         }
 
-        // 4. EXPLORAR: Miramos los 4 vecinos del punto actual
+        // EXPLORAR: Miramos los 4 vecinos del punto actual
         for (int i = 0; i < 4; i++) {
             int nX = actual.x + dX[i];
             int nY = actual.y + dY[i];
@@ -205,7 +206,7 @@ int resolverLaberinto_BFS(int inicioX, int inicioY, int filas, int columnas) {
                 !visitado[nX][nY] && (laberinto[nX][nY] == CAMINO || laberinto[nX][nY] == SALIDA)) {
                 
                 visitado[nX][nY] = 1;      // Lo marcamos para no repetir
-                padres[nX][nY] = actual;   // ¡Anotamos quién es su padre!
+                padres[nX][nY] = actual;   // Anotamos quién es su padre
                 cola[finCola++] = (Punto){nX, nY}; // Lo mandamos al final de la fila
             }
         }
@@ -214,10 +215,10 @@ int resolverLaberinto_BFS(int inicioX, int inicioY, int filas, int columnas) {
 }
 
 void reconstruirCamino(int x, int y) {
-    // 1. Empezamos mirando al "padre" de la celda donde está la salida
+    // Empezamos mirando al "padre" de la celda donde está la salida
     Punto actual = padres[x][y];
 
-    // 2. El bucle sigue el rastro de migas de pan
+    // El bucle sigue el rastro de migas de pan
     while (actual.x != -1) {
         // Si llegamos a la entrada, nos detenemos para no borrar el símbolo '['
         if (laberinto[actual.x][actual.y] == ENTRADA) {
